@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <style>
+    body {
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      margin: 0;
+      padding: 0;
+    }
+
+    header {
+      height: 80px;
+      width: 100%;
+      display: flex;
+      background-color: #CCCCCC;
+    }
+
+    div.title {
+      height: 100%;
+      width: 300px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background-color: #BBBBBB;
+    }
+
+    div.title p {
+      margin: 0;
+      padding: 0;
+    }
+
+    p.teamName {
+      font-size: 15px;
+    }
+
+    p.productName {
+      font-size: 18px;
+    }
+
+    p.productName .initial {
+      font-size: 23px;
+      font-weight: 700;
+    }
+
+    nav {
+      display: flex;
+      flex: 1;
+      align-items: center;
+      justify-content: end;
+      padding: 20px 40px 20px 0;
+    }
+
+    nav ul {
+      display: flex;
+      list-style-type: none;
+      padding: 0;
+      margin: 0;
+      gap: 20px;
+    }
+
+    main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      padding: 0 20px;
+      gap: 10px;
+    }
+
+    div.info {
+      height: 40px;
+      width: 100%;
+      display: flex;
+      align-items: center;
+      border-radius: 20px;
+      background-color: #DDDDDD;
+    }
+
+    div.dot {
+      height: 16px;
+      width: 16px;
+      margin: 12px;
+      border-radius: 50%;
+      background-color: #BBBBBB;
+    }
+
+    div.passwordGenerator {
+      width: 100%;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      background-color: #EEEEEE;
+    }
+
+    div.passwordGenerator ul {
+      display: flex;
+      list-style-type: none;
+      padding: 0;
+      margin: 0;
+      gap: 15px;
+      margin: 15px;
+    }
+
+    label.custom-checkbox {
+      height: 30px;
+      width: 70px;
+      display: flex;
+      align-items: center;
+      border-radius: 15px;
+      cursor: pointer;
+      user-select: none;
+      font-family: sans-serif;
+      font-size: 16px;
+    }
+
+    label.custom-checkbox input {
+      display: none;
+    }
+
+    .checkmark {
+      height: 100%;
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 15px;
+      position: relative;
+      transition: all 0.3s ease;
+      background-color: #EEEEEE;
+    }
+
+    .custom-checkbox:hover input~.checkmark {
+      background-color: #DDDDDD;
+    }
+
+    .custom-checkbox input:checked~.checkmark {
+      background-color: #CCCCCC;
+    }
+
+    .custom-checkbox:hover input:checked~.checkmark {
+      background-color: #DDDDDD;
+    }
+
+    footer {
+      height: 80px;
+      width: 100%;
+      background-color: #AAAAAA;
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <div class="title">
+      <p class="teamName">Fishpond Studio</p>
+      <p class="productName">
+        <span class="initial">R</span>andom
+        <span class="initial">P</span>assword
+        <span class="initial">G</span>enerator
+      </p>
+    </div>
+    <nav>
+      <ul>
+        <li>Home</li>
+        <li>Github</li>
+      </ul>
+    </nav>
+  </header>
+  <main>
+    <div class="info">
+      <div class="dot"></div>
+      <p>Please keep the generated password. This site will <em>not</em> store the password in any way.</p>
+    </div>
+    <div class="passwordGenerator">
+      <ul>
+        <li>
+          <label class="custom-checkbox">
+            <input type="checkbox" checked>
+            <span class="checkmark">A-Z</span>
+          </label>
+        </li>
+        <li>
+          <label class="custom-checkbox">
+            <input type="checkbox" checked>
+            <span class="checkmark">a-z</span>
+          </label>
+        </li>
+        <li>
+          <label class="custom-checkbox">
+            <input type="checkbox" checked>
+            <span class="checkmark">0-9</span>
+          </label>
+        </li>
+        <li>
+          <label class="custom-checkbox">
+            <input type="checkbox" checked>
+            <span class="checkmark">!@#$...</span>
+          </label>
+        </li>
+      </ul>
+      <div><input type="text" name="" id=""></div>
+      <div><input type="text" name="" id=""></div>
+    </div>
+  </main>
+  <footer>
+
+  </footer>
+  <script src="./generateRandom.js"></script>
+  <script src="./generatePassword.js"></script>
+  <script src="./charset.js"></script>
+  <script>
+    const allChars = [
+      ...charset.uppercase,
+      ...charset.lowercase,
+      ...charset.numbers
+    ]
+    console.log(allChars)
+    random = generateRandom(16, 0, allChars.length)
+    password = generatePassword(allChars, random)
+    console.log(password)
+  </script>
+</body>
+
+</html>

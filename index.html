@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+
+<body>
+  <b>Fishpond Studio</b>
+  <p>Random Password Generator</p>
+  <hr>
+  <div>Please keep the generated password. This site will <em>not</em> store the password in any way.</div>
+  <table>
+    <tr>
+      <td><input type="checkbox" name="charType" id="uppercase" checked><label for="uppercase">A~Z</label></td>
+      <td><input type="checkbox" name="charType" id="lowercase" checked><label for="lowercase">a~z</label></td>
+      <td><input type="checkbox" name="charType" id="numbers" checked><label for="numbers">0~9</label></td>
+      <td><input type="checkbox" name="charType" id="symbols"><label for="symbols">!@#$...</label></td>
+      <!-- <td><input type="checkbox" id="selectAll"><label for="selectAll">Select All</label></td> -->
+    </tr>
+  </table>
+  <table>
+    <tr>
+      <td>
+        Include
+      </td>
+      <td>
+        <input type="text" id="include" maxlength="64"><button type="button"
+          onclick="document.getElementById('include').value=''">Clear</button>
+      </td>
+      <td>
+        Exclude
+      </td>
+      <td>
+        <input type="text" id="exclude" maxlength="64" value="0oO1iIlL"><button type="button"
+          onclick="document.getElementById('exclude').value=''">Clear</button>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        Length
+      </td>
+      <td>
+        <input type="number" id="lengthMin" value="16" max="2048" min="1"> - <input type="number" id="lengthMax" max="2048" min="1">
+      </td>
+    </tr>
+  </table>
+  <br>
+  <div>
+    <div>Random Password <button type="button" id="generate">Generate</button> <!-- <button type="button">Copy</button>
+      <button type="button">Clear</button> -->
+    </div>
+    <input type="text" id="password" value="" readonly>
+  </div>
+  <hr>
+  Copyright © 2026 Fishpond Studio. All Rights Reserved.
+
+  <script src="./generateRandom.js"></script>
+  <script src="./generatePassword.js"></script>
+  <script src="./charset.js"></script>
+  <script>
+    const data = {
+      uppercase: document.querySelector("#uppercase"),
+      lowercase: document.querySelector("#lowercase"),
+      numbers: document.querySelector("#numbers"),
+      symbols: document.querySelector("#symbols"),
+      include: document.querySelector("#include"),
+      exclude: document.querySelector("#exclude"),
+      lengthMin: document.querySelector("#lengthMin"),
+      lengthMax: document.querySelector("#lengthMax")
+    }
+    const generate = document.getElementById("generate")
+    const password = document.querySelector("#password")
+
+    function getLength(num1, num2) {
+      if (!num1 && !num2) return null
+      if (!num1) return num2
+      if (!num2) return num1
+      if (num1 === num2) return num1
+      const max = num1 > num2 ? num1 : num2
+      const min = num1 < num2 ? num1 : num2
+      return generateRandom(1, min, max)[0]
+    }
+    generate.addEventListener("click", function () {
+      const bools = [
+        data.uppercase.checked,
+        data.lowercase.checked,
+        data.numbers.checked,
+        data.symbols.checked,
+      ]
+      const length = getLength(Number(data.lengthMin.value), Number(data.lengthMax.value))
+      const excludeSet = new Set(data.exclude.value)
+      const allChars = [
+        ...[charset.uppercase, charset.lowercase, charset.numbers, charset.symbols]
+          .filter((_, index) => bools[index])
+          .flat(),
+        ...data.include.value.replace(/[^\x00-\x7F]/g, "")
+      ].filter(char => !excludeSet.has(char))
+      if (length > 0 && allChars?.length > 0) {
+        const random = generateRandom(length, 0, allChars.length - 1)
+        password.value = generatePassword(allChars, random)
+      } else {
+        password.value = null
+      }
+    });
+  </script>
+</body>
+
+</html>
