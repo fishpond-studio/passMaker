@@ -18,7 +18,8 @@
       <td><input type="checkbox" name="charType" id="lowercase" checked><label for="lowercase">a~z</label></td>
       <td><input type="checkbox" name="charType" id="numbers" checked><label for="numbers">0~9</label></td>
       <td><input type="checkbox" name="charType" id="symbols"><label for="symbols">!@#$...</label></td>
-      <!-- <td><input type="checkbox" id="selectAll"><label for="selectAll">Select All</label></td> -->
+      <td><input type="checkbox" id="selectAll"><label for="selectAll">Select All</label></td>
+      <script>document.querySelector("#selectAll").indeterminate = true</script>
     </tr>
   </table>
   <table>
@@ -43,14 +44,15 @@
         Length
       </td>
       <td>
-        <input type="number" id="lengthMin" value="16" max="2048" min="1"> - <input type="number" id="lengthMax" max="2048" min="1">
+        <input type="number" id="lengthMin" value="16" max="2048" min="1"> - <input type="number" id="lengthMax"
+          max="2048" min="1">
       </td>
     </tr>
   </table>
   <br>
   <div>
-    <div>Random Password <button type="button" id="generate">Generate</button> <!-- <button type="button">Copy</button>
-      <button type="button">Clear</button> -->
+    <div>Random Password <button type="button" id="generate">Generate</button> <button type="button"
+        id="copy">Copy</button> <button type="button" id="clear">Clear</button>
     </div>
     <input type="text" id="password" value="" readonly>
   </div>
@@ -61,7 +63,7 @@
   <script src="./generatePassword.js"></script>
   <script src="./charset.js"></script>
   <script>
-    const data = {
+    const raw = {
       uppercase: document.querySelector("#uppercase"),
       lowercase: document.querySelector("#lowercase"),
       numbers: document.querySelector("#numbers"),
@@ -71,9 +73,28 @@
       lengthMin: document.querySelector("#lengthMin"),
       lengthMax: document.querySelector("#lengthMax")
     }
-    const generate = document.getElementById("generate")
-    const password = document.querySelector("#password")
 
+    const charType = document.querySelectorAll('[name="charType"]')
+    const selectAll = document.querySelector("#selectAll")
+    const generate = document.querySelector("#generate")
+    const copy = document.querySelector("#copy")
+    const password = document.querySelector("#password")
+    const clear = document.querySelector("#clear")
+
+    // 限制字符串长度
+    function limitString(str, maxLength) {
+      if (str.length > maxLength) return str.slice(0, maxLength)
+      return str
+    }
+
+    // 限制数字大小
+    function limitNumber(num, max) {
+      if (num == null || isNaN(num)) return null
+      if (num > max) return Math.abs(Math.floor(max))
+      return Math.abs(Math.floor(num))
+    }
+
+    // max和min 对调
     function getLength(num1, num2) {
       if (!num1 && !num2) return null
       if (!num1) return num2
@@ -83,28 +104,80 @@
       const min = num1 < num2 ? num1 : num2
       return generateRandom(1, min, max)[0]
     }
+
+    // 全选控制单选
+    selectAll.addEventListener("change", function () {
+      charType.forEach(item => {
+        item.checked = this.checked
+      })
+    })
+
+    // 手动单选控制全选
+    charType.forEach(item => {
+      item.addEventListener("change", function () {
+        const checkedCount = document.querySelectorAll('[name="charType"]:checked').length
+        selectAll.checked = (checkedCount === charType.length)
+        selectAll.indeterminate = (checkedCount > 0 && checkedCount < charType.length)
+      })
+    })
+
+    // 生成密码
     generate.addEventListener("click", function () {
       const bools = [
-        data.uppercase.checked,
-        data.lowercase.checked,
-        data.numbers.checked,
-        data.symbols.checked,
+        raw.uppercase.checked,
+        raw.lowercase.checked,
+        raw.numbers.checked,
+        raw.symbols.checked,
       ]
-      const length = getLength(Number(data.lengthMin.value), Number(data.lengthMax.value))
-      const excludeSet = new Set(data.exclude.value)
-      const allChars = [
-        ...[charset.uppercase, charset.lowercase, charset.numbers, charset.symbols]
-          .filter((_, index) => bools[index])
-          .flat(),
-        ...data.include.value.replace(/[^\x00-\x7F]/g, "")
-      ].filter(char => !excludeSet.has(char))
+      // 格式化数据
+      const data = {
+        include: limitString(raw.include.value, 64).replace(/[^\x00-\x7F]/g, ""),
+        exclude: limitString(raw.exclude.value, 64).replace(/[^\x00-\x7F]/g, ""),
+        lengthMin: limitNumber(raw.lengthMin.value, 1024),
+        lengthMax: limitNumber(raw.lengthMax.value, 1024),
+      }
+      // 重置输入框
+      raw.include.value = data.include
+      raw.exclude.value = data.exclude
+      raw.lengthMin.value != 0 ? raw.lengthMin.value = data.lengthMin : raw.lengthMin.value = null
+      raw.lengthMax.value != 0 ? raw.lengthMax.value = data.lengthMax : raw.lengthMax.value = null
+
+      const length = getLength(data.lengthMin, data.lengthMax)
+      const excludeSet = new Set(data.exclude)
+      const allChars =
+        [
+          ...[charset.uppercase, charset.lowercase, charset.numbers, charset.symbols]
+            .filter((_, index) => bools[index])
+            .flat().filter(char => !excludeSet.has(char)),
+          ...data.include
+        ]
       if (length > 0 && allChars?.length > 0) {
         const random = generateRandom(length, 0, allChars.length - 1)
         password.value = generatePassword(allChars, random)
       } else {
         password.value = null
       }
-    });
+    })
+
+    // 复制到剪切板
+    copy.addEventListener("click", function () {
+      if (password.value != "" && password.value != null) {
+        try {
+          navigator.clipboard.writeText(password.value)
+          copy.innerHTML = "<b>copied<b>"
+          setTimeout(() => {
+            copy.innerHTML = "copy"
+          }, 1000)
+        } catch (err) {
+          console.error('Failed to copy: ', err)
+        }
+      }
+    })
+
+    // 清除密码
+    clear.addEventListener("click", function () {
+      password.value = null
+    })
   </script>
 </body>
 
